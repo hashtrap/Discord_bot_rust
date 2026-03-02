@@ -18,11 +18,11 @@ fn prepare_env()
 }
 
 //Use only for testing or to delete a global command created by mistake
-fn clear_global_command(token:String,app_id:String)
+async fn clear_global_command(token:String,app_id:String)
 {
     let id:u64=app_id.parse::<u64>().expect("You forgot to the integer");
     let http=serenity::http::Http::new(&token);
-    http.set_application_id(ApplicationId::new(id));   //1472625721297080471   1472322847161585765
+    http.set_application_id(ApplicationId::new(id));   
 
 
     let result=http.delete_global_command(CommandId::new(1472322847161585765)).await;
