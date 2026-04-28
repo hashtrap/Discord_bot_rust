@@ -6,10 +6,12 @@ edition = "2024"
 
 
 [dependencies]
-tokio = { version = "1.21.2", features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.52.1", features = ["full"] }
 serenity-commands = "0.8.0"
-poise = "0.6.1"
+poise = "0.6.2"
 dotenv = "0.15.0"
+futures="0.3.32"
+reqwest = "0.13.3"
 
 [dependencies.serenity]
 default-features = false

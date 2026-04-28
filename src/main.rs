@@ -1,7 +1,10 @@
+use std::ptr::copy_nonoverlapping;
+use futures::future::err;
 use poise::serenity_prelude as serenity;
 use serenity::model::id::{GuildId,CommandId};
-use dotenv;
 use serenity::all::ApplicationId;
+use discord_bot::api;
+use discord_bot::api::spotify_api::retrieve_cred;
 
 struct Data{}
 type Error=Box<dyn std::error::Error+Send+Sync>;
@@ -22,7 +25,7 @@ async fn clear_global_command(token:String,app_id:String)
 {
     let id:u64=app_id.parse::<u64>().expect("You forgot to the integer");
     let http=serenity::http::Http::new(&token);
-    http.set_application_id(ApplicationId::new(id));   
+    http.set_application_id(ApplicationId::new(id));
 
 
     let result=http.delete_global_command(CommandId::new(1472322847161585765)).await;
@@ -52,11 +55,24 @@ async fn hello(ctx:Context<'_>) -> Result<(),Error>
 }
 
 #[poise::command(slash_command)]
-async fn duet(ctx:Context<'_>)->Result<(),Error>
+
+async fn duet2(ctx:Context<'_>)->Result<(),Error>
 {
 
-    let response="Duet works";
-    ctx.say(response).await?;
+    Ok(())
+}
+
+#[poise::command(slash_command)]
+
+async fn ping(ctx:Context<'_>)->Result<(),Error>
+{
+
+    let target=match retrieve_cred().await
+    {
+        Ok(str)=>str,
+        Err(_)=>String::from("aaaaaaaaaaaaaaaa"),
+    };
+    println!("{}",target);
     Ok(())
 }
 
@@ -75,7 +91,7 @@ async fn main()
     let framework= poise::Framework::builder()
         .options(poise::FrameworkOptions
         {
-            commands:vec![duet(),hello()],
+            commands:vec![duet2(), hello(),ping()],
             ..Default::default()
         })
         .setup(|ctx, _ready, framework|
@@ -93,3 +109,4 @@ async fn main()
         .await;
     client.unwrap().start().await.unwrap();
 }
+
