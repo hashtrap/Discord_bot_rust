@@ -1,4 +1,6 @@
 use std::env;
+use std::sync::LazyLock;
+use reqwest::Client;
 
 pub mod api;
 
@@ -12,6 +14,11 @@ pub  fn prepare_env()
     dotenv::from_filename(".env").ok();
     println!("Preparing environment variables...");
 
+}
+
+pub  fn create_client()->Client
+{
+    Client::new()
 }
 
 

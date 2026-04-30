@@ -1,11 +1,12 @@
-use discord_bot::prepare_env;
+use discord_bot::{prepare_env, create_client};
 use poise::serenity_prelude as serenity;
 use serenity::model::id::{GuildId,CommandId};
 use serenity::all::ApplicationId;
-use discord_bot::api;
-use discord_bot::api::spotify_api::retrieve_cred;
 
-struct Data{}
+struct Data
+{
+    spotify_client: reqwest::Client,
+}
 type Error=Box<dyn std::error::Error+Send+Sync>;
 type Context<'a>=poise::Context<'a,Data,Error>;
 
@@ -52,6 +53,7 @@ async fn hello(ctx:Context<'_>) -> Result<(),Error>
 async fn duet2(ctx:Context<'_>)->Result<(),Error>
 {
 
+
     Ok(())
 }
 
@@ -60,12 +62,7 @@ async fn duet2(ctx:Context<'_>)->Result<(),Error>
 async fn ping(ctx:Context<'_>)->Result<(),Error>
 {
 
-    let target=match retrieve_cred().await
-    {
-        Ok(str)=>str,
-        Err(_)=>String::from("aaaaaaaaaaaaaaaa"),
-    };
-    println!("{}",target);
+
     Ok(())
 }
 
@@ -75,31 +72,44 @@ async fn main()
 {
     prepare_env();
 
-    let token= std::env::var("DISCORD_TOKEN").expect("You forgot the fucking token you moron");
+    let Spotify_Client=create_client();
+    let spotify_client = Spotify_Client.clone();
 
-    let app_id= std::env::var("APPLICATION_ID").expect("You forgot the fucking app_id you moron");
 
-    let intents=serenity::GatewayIntents::non_privileged();
 
-    let framework= poise::Framework::builder()
-        .options(poise::FrameworkOptions
+    tokio::spawn(async move
         {
-            commands:vec![duet2(), hello(),ping()],
-            ..Default::default()
-        })
-        .setup(|ctx, _ready, framework|
-            {
-            Box::pin(async move
-                {
-                poise::builtins::register_in_guild(ctx, &framework.options().commands,GuildId::new(1470487901958574214)).await?;
-                Ok(Data {})
-                })
-            })
-        .build();
+            let token= std::env::var("DISCORD_TOKEN").expect("You forgot the fucking token you moron");
 
-    let client=serenity::ClientBuilder::new(token, intents)
-    .framework(framework)
-        .await;
-    client.unwrap().start().await.unwrap();
+            let app_id= std::env::var("APPLICATION_ID").expect("You forgot the fucking app_id you moron");
+
+            let intents=serenity::GatewayIntents::non_privileged();
+
+            let framework= poise::Framework::builder()
+                .options(poise::FrameworkOptions
+                {
+                    commands:vec![duet2(), hello(),ping()],
+                    ..Default::default()
+                })
+                .setup(|ctx, _ready, framework|
+                    {
+                        Box::pin(async move
+                            {
+                                poise::builtins::register_in_guild(ctx, &framework.options().commands,GuildId::new(1470487901958574214)).await?;
+                                Ok(Data {spotify_client:spotify_client})
+                            })
+                    })
+                .build();
+
+            let client=serenity::ClientBuilder::new(token, intents)
+                .framework(framework)
+                .await;
+            client.unwrap().start().await.unwrap();
+        });
+
+    tokio::spawn(async move
+        {
+
+        });
 }
 
