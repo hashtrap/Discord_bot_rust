@@ -1,5 +1,4 @@
-use std::ptr::copy_nonoverlapping;
-use futures::future::err;
+use discord_bot::prepare_env;
 use poise::serenity_prelude as serenity;
 use serenity::model::id::{GuildId,CommandId};
 use serenity::all::ApplicationId;
@@ -12,13 +11,7 @@ type Context<'a>=poise::Context<'a,Data,Error>;
 
 //Below are the extra functions that are used because i like to
 
-fn prepare_env()
-{
 
-    dotenv::from_filename(".env").ok();
-    println!("Preparing environment variables...");
-
-}
 
 //Use only for testing or to delete a global command created by mistake
 async fn clear_global_command(token:String,app_id:String)
