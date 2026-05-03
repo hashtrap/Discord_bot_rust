@@ -43,7 +43,7 @@ async fn clear_global_command(token:String,app_id:String)
 async fn hello(ctx:Context<'_>) -> Result<(),Error>
 {
 
-    let response="Hello im a simple bot, serving as this motels bell hop";
+    let response="Client succesfully passed";
     ctx.say(response).await?;
     Ok(())
 }

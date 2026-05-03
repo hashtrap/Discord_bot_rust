@@ -1,6 +1,6 @@
 use std::env;
 use std::sync::LazyLock;
-use reqwest::Client;
+use reqwest;
 
 pub mod api;
 
@@ -16,9 +16,9 @@ pub  fn prepare_env()
 
 }
 
-pub  fn create_client()->Client
+pub  fn create_client()->reqwest::Client
 {
-    Client::new()
+    reqwest::Client::new()
 }
 
 
