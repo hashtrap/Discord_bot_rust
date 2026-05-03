@@ -1,4 +1,3 @@
-use std::ptr::addr_of_mut;
 use crate::api::*;
 use crate::get_env_var;
 
@@ -47,9 +46,12 @@ async fn connect_client(client:Client, spotify_token: &mut Spotify_Token)->Resul
         .body(format!("grant_type=client_credentials&client_id={}&client_secret={}",client.client_id,client.client_secret))
         .send().await?;
 
-    let result=response.text().await?;
 
-    Ok(result)
+    let spotify_token= response.json::<Spotify_Token>().await?;
+
+    println!("Token is: {}, bearer: {}, and ttl is: {}",spotify_token.access_token,spotify_token.token_type,spotify_token.expires_in);
+
+    todo!()
 }
 
 
