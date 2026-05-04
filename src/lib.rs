@@ -1,5 +1,4 @@
 use std::env;
-use std::sync::LazyLock;
 use reqwest;
 
 pub mod api;
