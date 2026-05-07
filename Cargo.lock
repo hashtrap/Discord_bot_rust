@@ -385,6 +385,7 @@ dependencies = [
  "poise",
  "reqwest 0.13.3",
  "serde",
+ "serde_json",
  "serenity",
  "serenity-commands",
  "tokio",
