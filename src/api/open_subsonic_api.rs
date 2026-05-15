@@ -2,22 +2,65 @@
 use md5;
 use crate::api::*;
 use crate::get_env_var;
+use serde_json::Value;
 
-async fn connect_server(client:&reqwest::Client)->Result<(),reqwest::Error>
+#[derive(Debug, Deserialize)]
+struct Response {
+    #[serde(rename = "subsonic-response")]
+    subsonic_response: SubsonicResponse,
+}
+
+#[derive(Debug, Deserialize)]
+struct SubsonicResponse {
+    playlist: Playlist,
+}
+
+#[derive(Debug, Deserialize)]
+struct Playlist {
+    entry: Vec<Entry>,
+}
+
+#[derive(Debug, Deserialize)]
+struct Entry {
+    title: String,
+}
+
+
+async fn get_playlist(client:reqwest::Client)->Result<(Vec<String>),reqwest::Error>
 {
-    let username=get_env_var("USERNAME");
-    //println!("Username: {}",&username);
-    let (token,salt)=hashing();
+    let playlist_id=get_env_var("PLAYLIST_ID");
+    let (url,username,name)=return_creds();
+    let password=get_env_var("PASSWORD");
+    let response=client.get(format!("{url}/rest/getPlaylist.view?id={playlist_id}\
+                                  &u={username}&p={password}\
+                                  &f=json&v=1.13.0&c={name}"))
+                                 .send().await?;
 
-    println!("Salt: {}",&salt);
+    println!("Response get_playlist status: {:?}",response.status());
+    let text = response.text().await?;
+    let data: Response = serde_json::from_str(&text).unwrap();
 
-    let response=client.post("https://music.dstefani.site/rest/ping.view")
-          .header("Content-Type"," application/x-www-form-urlencoded")
-          .body(format!("c=Hazbin_Motel&v=1.13.0&u={:?}&t={:?}&s={:?}&f=json",username,token,salt))
-          .send().await?;
+    let song_names: Vec<String> = data
+        .subsonic_response
+        .playlist
+        .entry
+        .into_iter()
+        .map(|e| e.title)
+        .collect();
 
-    println!("Response status: {:?}",&response.status());
+    println!("{:#?}", song_names);
+
     todo!()
+}
+
+fn return_creds()->(String,String,String)
+{
+    let url=get_env_var("URL");
+    let username=get_env_var("USERNAME");
+    let (password,salt)=hashing();
+    let name=String::from("Hazbin_Motel");
+    (url,username,name)
+
 }
 
 fn hashing()->(String,String)
@@ -41,13 +84,26 @@ mod tests
     use super::*;
 
     #[tokio::test]
-    async fn test_connection()
+    async fn connect_server()->Result<(),reqwest::Error>
     {
-
         prepare_env();
 
-        let client=reqwest::Client::new();
-        connect_server(&client).await.unwrap();
+        let client = reqwest::Client::new();
+        let username=get_env_var("USERNAME");
+        //println!("Username: {}",&username);
+        let (token,salt)=hashing();
+
+        //println!("Salt: {}",&salt);
+
+        let response=client.post("https://music.dstefani.site/rest/ping.view")
+            .header("Content-Type"," application/x-www-form-urlencoded")
+            .body(format!("c=Hazbin_Motel&v=1.13.0&u={:?}&t={:?}&s={:?}&f=json",username,token,salt))
+            .send().await?;
+
+        println!("Response status: {:?}",&response.status());
+        println!("Response full:{:?}",response.text().await.expect("Response recieved but content is empty"));
+
+        Ok(())
 
     }
 
@@ -59,6 +115,8 @@ mod tests
         prepare_env();
 
         let client=reqwest::Client::new();
+
+        get_playlist(client).await.unwrap();
 
 
     }
