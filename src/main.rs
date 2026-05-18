@@ -50,10 +50,10 @@ async fn hello(ctx:Context<'_>) -> Result<(),Error>
 
 #[poise::command(slash_command)]
 
-async fn duet2(ctx:Context<'_>)->Result<(),Error>
+async fn fail(ctx:Context<'_>)->Result<(),Error>
 {
 
-
+    panic!("Test panic");
     Ok(())
 }
 
@@ -77,8 +77,7 @@ async fn main()
 
 
 
-    tokio::spawn(async move
-        {
+
             let token= std::env::var("DISCORD_TOKEN").expect("You forgot the fucking token you moron");
 
             let app_id= std::env::var("APPLICATION_ID").expect("You forgot the fucking app_id you moron");
@@ -88,7 +87,7 @@ async fn main()
             let framework= poise::Framework::builder()
                 .options(poise::FrameworkOptions
                 {
-                    commands:vec![duet2(), hello(),ping()],
+                    commands:vec![fail(), hello(),ping()],
                     ..Default::default()
                 })
                 .setup(|ctx, _ready, framework|
@@ -105,11 +104,6 @@ async fn main()
                 .framework(framework)
                 .await;
             client.unwrap().start().await.unwrap();
-        });
 
-    tokio::spawn(async move
-        {
-
-        });
 }
 
