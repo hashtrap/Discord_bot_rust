@@ -82,21 +82,31 @@ async fn hello(ctx:Context<'_>) -> Result<(),Error>
 
 async fn duet_random(ctx:Context<'_>)->Result<(),Error>
 {
-    ctx.defer().await?;
+    let mut interval=tokio::time::interval(Duration::from_secs(3));
+    ctx.defer_ephemeral().await?;
     let lyrics:Vec<String>=match open_subsonic_api::daily_duet().await
     {
         Ok(lyrics) =>
             {
-                ctx.say("Successfully did duet");
+                println!("Point reached");
+                //ctx.say("Successfully did duet").await;
                 lyrics
             },
         Err(error) =>
             {
-
+                println!("Error reached");
                 ctx.say("Oops something went wrong while getting the song, please try again later").await;
                 panic!("Error while doing auto_duet: {}", error);
             }
     };
+    for line in lyrics.iter()
+    {
+        interval.tick().await;
+        ctx.say(line).await?;
+    }
+
+    ctx.say("Duet Done :)").await?;
+
     Ok(())
 }
 

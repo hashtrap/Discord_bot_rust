@@ -100,7 +100,14 @@ async fn get_lyrics(client:&reqwest::Client,song:Song)->Result<Vec<String>,reqwe
     let lyrics:Vec<String> = lyric_data .split('\n')
         .map(String::from)
         .collect();
-    //println!("{:#?}",lyrics[1]);
+    for lyric in lyrics.iter()
+    {
+        println!("Lyrics:{:?}",lyric);
+    }
+
+    //println!("Lyrics:{:?}",&lyrics);
+    // todo: need to make sure the empty strings are eliminated
+
     Ok(lyrics)
 }
 async fn get_playlist(client:&reqwest::Client)->Result<(Vec<Song>),reqwest::Error>
@@ -168,13 +175,14 @@ pub async fn daily_duet()->Result<Vec<String>,reqwest::Error>
 
                 else
                 {
+                    println!("Lyrics retrieved");
                     lyrics
                 }
             },
         Err(err)=>panic!("Error while connecting to the lyrics API, {}",err)
     };
 
-
+    println!("Sending Lyrics");
     Ok(lyrics)
 
 }
