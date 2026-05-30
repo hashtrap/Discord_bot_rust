@@ -18,10 +18,7 @@ pub  fn prepare_env()
 
 }
 
-pub  fn create_client()->reqwest::Client
-{
-    reqwest::Client::new()
-}
+
 
 
 

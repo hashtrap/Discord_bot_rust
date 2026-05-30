@@ -70,7 +70,9 @@ fn random_song(mut playlist:  Vec<Song>)->Song
 
     let rand=rng.random_range(0..playlist_length);
 
-    playlist.remove(rand)
+    let song=playlist.remove(rand);
+    println!("The song chosen is: {:#?}",&song);
+    song
 
 }
 
@@ -91,13 +93,15 @@ async fn get_lyrics(client:&reqwest::Client,song:Song)->Result<Vec<String>,reqwe
                                  .send().await?;
 
 
-    println!("Response status: {:?}",&response.status());
+    println!("Response get_lyrics status: {:?}",&response.status());
     let data: Value = response.json().await?;
     let lyric_data=data["plainLyrics"].as_str().unwrap();
     //println!("{:?}",&lyric_data);
-    let lyrics:Vec<&str> = lyric_data.split('\n').collect();
-    println!("{:#?}",lyrics[1]);
-    todo!()
+    let lyrics:Vec<String> = lyric_data .split('\n')
+        .map(String::from)
+        .collect();
+    //println!("{:#?}",lyrics[1]);
+    Ok(lyrics)
 }
 async fn get_playlist(client:&reqwest::Client)->Result<(Vec<Song>),reqwest::Error>
 {
@@ -123,6 +127,56 @@ async fn get_playlist(client:&reqwest::Client)->Result<(Vec<Song>),reqwest::Erro
 
 
     Ok(song)
+}
+
+pub async fn daily_duet()->Result<Vec<String>,reqwest::Error>
+{
+    let client = reqwest::Client::new();
+    let client2 = client.clone();
+
+    let playlist=match get_playlist(&client)
+
+    .await
+    {
+        Ok(songs) =>
+
+            {
+                if songs.len() == 0
+                {
+                    panic!("Error while retrieving playlist, the playlist was found empty");
+                }
+
+                else
+                {
+                    songs
+                }
+            },
+
+        Err(err)=>panic!("Error while connecting to the playlist of the server, {}",err)
+    };
+
+    let song_of_day=random_song(playlist);
+
+    let lyrics=match get_lyrics(&client2,song_of_day).await
+    {
+        Ok(lyrics) =>
+            {
+                if lyrics.len() == 0
+                {
+                    panic!("Error, could not find lyrics");
+                }
+
+                else
+                {
+                    lyrics
+                }
+            },
+        Err(err)=>panic!("Error while connecting to the lyrics API, {}",err)
+    };
+
+
+    Ok(lyrics)
+
 }
 
 
@@ -218,6 +272,16 @@ mod tests
         println!("{:#?}",&song);
 
         get_lyrics(&client,song).await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn duet_test()
+    {
+
+        prepare_env();
+        let test_result=daily_duet().await;
+
+        println!("{:#?}",test_result);
     }
 
 

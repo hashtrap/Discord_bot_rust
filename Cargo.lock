@@ -415,7 +415,6 @@ dependencies = [
  "serde",
  "serde_json",
  "serenity",
- "serenity-commands",
  "tokio",
 ]
 
@@ -1884,30 +1883,6 @@ dependencies = [
  "typesize",
  "url",
  "uwl",
-]
-
-[[package]]
-name = "serenity-commands"
-version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ea09a23f0733fb2eeb9844d0c619c9324244b715dfe381b265d4c2a558d9998f"
-dependencies = [
- "serenity",
- "serenity-commands-macros",
- "thiserror 2.0.18",
-]
-
-[[package]]
-name = "serenity-commands-macros"
-version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cb371bcd247ecb33c2ecf33a17ae8e6d09c7e93cc2d34d70b02f060f15f257d9"
-dependencies = [
- "darling",
- "heck",
- "proc-macro2",
- "quote",
- "syn 2.0.117",
 ]
 
 [[package]]
