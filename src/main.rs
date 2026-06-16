@@ -39,7 +39,7 @@ impl EventHandler for Handler
                         let message=message.add_embed(menu);
 
                         let _message=message.execute(&http,(channel_id,guild_id)).await;
-                        
+
                     }
 
                 });
@@ -73,7 +73,7 @@ fn menu_creator()->serenity::builder::CreateEmbed
 async fn hello(ctx:Context<'_>) -> Result<(),Error>
 {
 
-    let response="Hello to you to. Welcome to the Hazbin Motel";
+    let response="Hello to you to. Welcome to the Hazbin Motel  UwU";
     ctx.say(response).await?;
     Ok(())
 }
@@ -84,19 +84,19 @@ async fn duet_random(ctx:Context<'_>)->Result<(),Error>
 {
     let mut interval=tokio::time::interval(Duration::from_secs(3));
     ctx.defer_ephemeral().await?;
-    let lyrics:Vec<String>=match open_subsonic_api::daily_duet().await
+    let lyrics: Result<String, ()> = Err(());
+    match lyrics
     {
         Ok(lyrics) =>
             {
                 println!("Point reached");
-                //ctx.say("Successfully did duet").await;
                 lyrics
             },
-        Err(error) =>
+        Err(_) =>
             {
                 println!("Error reached");
-                ctx.say("Oops something went wrong while getting the song, please try again later").await;
-                panic!("Error while doing auto_duet: {}", error);
+                ctx.say("Oops something went wrong while getting the song, please try again later QwQ").await?;
+                return Ok(());
             }
     };
     for line in lyrics.iter()
@@ -105,7 +105,9 @@ async fn duet_random(ctx:Context<'_>)->Result<(),Error>
         ctx.say(line).await?;
     }
 
-    ctx.say("Duet Done :)").await?;
+    ctx.say("Duet Done  OwO").await?;
+
+
 
     Ok(())
 }

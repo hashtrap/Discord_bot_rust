@@ -98,6 +98,7 @@ async fn get_lyrics(client:&reqwest::Client,song:Song)->Result<Vec<String>,reqwe
     let lyric_data=data["plainLyrics"].as_str().unwrap();
     //println!("{:?}",&lyric_data);
     let lyrics:Vec<String> = lyric_data .split('\n')
+        .filter(|&s| !s.is_empty())
         .map(String::from)
         .collect();
     for lyric in lyrics.iter()
