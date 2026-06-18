@@ -96,7 +96,7 @@ async fn get_lyrics(client:&reqwest::Client,song:Song)->Result<Vec<String>,reqwe
     println!("Response get_lyrics status: {:?}",&response.status());
     let data: Value = response.json().await?;
     let lyric_data=data["plainLyrics"].as_str().unwrap();
-    //println!("{:?}",&lyric_data);
+    println!("{:?}",&lyric_data);
     let lyrics:Vec<String> = lyric_data .split('\n')
         .filter(|&s| !s.is_empty())
         .map(String::from)
@@ -156,6 +156,7 @@ pub async fn daily_duet()->Result<Vec<String>,reqwest::Error>
 
                 else
                 {
+                    println!("Songs: {:?}",&songs);
                     songs
                 }
             },
@@ -164,6 +165,8 @@ pub async fn daily_duet()->Result<Vec<String>,reqwest::Error>
     };
 
     let song_of_day=random_song(playlist);
+
+    println!("Song of day: {:?}",&song_of_day);
 
     let lyrics=match get_lyrics(&client2,song_of_day).await
     {

@@ -5,6 +5,7 @@ use poise::serenity_prelude as serenity;
 use serenity::model::prelude::*;
 use serenity::all::{ApplicationId, EventHandler, Message};
 use serenity::async_trait;
+use serenity::collector;
 use serenity::builder::Builder;
 use discord_bot::api::open_subsonic_api;
 
@@ -82,32 +83,42 @@ async fn hello(ctx:Context<'_>) -> Result<(),Error>
 
 async fn duet_random(ctx:Context<'_>)->Result<(),Error>
 {
-    let mut interval=tokio::time::interval(Duration::from_secs(3));
     ctx.defer_ephemeral().await?;
-    let lyrics: Result<String, ()> = Err(());
-    match lyrics
-    {
-        Ok(lyrics) =>
-            {
-                println!("Point reached");
-                lyrics
-            },
-        Err(_) =>
-            {
-                println!("Error reached");
-                ctx.say("Oops something went wrong while getting the song, please try again later QwQ").await?;
-                return Ok(());
-            }
+
+    let lyrics = match open_subsonic_api::daily_duet().await {
+        Ok(lyrics) => {
+            println!("Point reached");
+            lyrics
+        }
+        Err(_) => {
+            println!("Error reached");
+            ctx.say("Oops something went wrong while getting the song, please try again later QwQ").await?;
+            return Ok(());
+        }
     };
-    for line in lyrics.iter()
-    {
-        interval.tick().await;
+
+    for line in lyrics.iter() {
         ctx.say(line).await?;
+
+        let user_response = collector::MessageCollector::new(ctx.serenity_context())
+            .author_id(ctx.author().id)
+            .channel_id(ctx.channel_id())
+            .timeout(Duration::from_secs(20))
+            .await;
+
+        match user_response {
+            Some(message) => {
+                println!("The user answered: {}", message.content);
+            }
+            None => {
+                println!("Waited too long");
+                ctx.say("You waited too long QwQ").await?;
+                break;
+            }
+        }
     }
 
-    ctx.say("Duet Done  OwO").await?;
-
-
+    ctx.say("Duet Done OwO").await?;
 
     Ok(())
 }

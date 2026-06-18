@@ -28,5 +28,6 @@ features = [
     "standard_framework",
     "utils",
     "rustls_backend",
+    "collector",
 ]
 version = "0.12"
