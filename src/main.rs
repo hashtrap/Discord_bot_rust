@@ -3,17 +3,14 @@ use std::time::Duration;
 use discord_bot::{prepare_env, get_env_var};
 use poise::serenity_prelude as serenity;
 use serenity::model::prelude::*;
-use serenity::all::{ApplicationId, EventHandler, Message};
+use serenity::all::EventHandler;
 use serenity::async_trait;
 use serenity::collector;
 use serenity::builder::Builder;
 use discord_bot::api::open_subsonic_api;
 
 struct Handler;
-struct Data
-{
-    client: reqwest::Client,
-}
+struct Data;
 type Error=Box<dyn std::error::Error+Send+Sync>;
 type Context<'a>=poise::Context<'a,Data,Error>;
 
@@ -58,10 +55,10 @@ fn menu_creator()->serenity::builder::CreateEmbed
 
     let menu=menu.color(Color::from_rgb(255, 49, 49));
 
-    let menu=menu.description("Start a duet today with a random or a song of your choice 🎵");
+    
 
 
-    menu
+    menu.description("Start a duet today with a random or a song of your choice 🎵")
 
 }
 
@@ -106,6 +103,8 @@ async fn duet_random(ctx:Context<'_>)->Result<(),Error>
             .timeout(Duration::from_secs(20))
             .await;
 
+
+
         match user_response {
             Some(message) => {
                 println!("The user answered: {}", message.content);
@@ -124,7 +123,7 @@ async fn duet_random(ctx:Context<'_>)->Result<(),Error>
 }
 
 #[poise::command(slash_command)]
-async fn duet_song(ctx:Context<'_>)->Result<(),Error>
+async fn duet_song(_ctx:Context<'_>)->Result<(),Error>
 {
 
 
@@ -136,13 +135,6 @@ async fn duet_song(ctx:Context<'_>)->Result<(),Error>
 async fn main()
 {
     prepare_env();
-
-
-
-    let client =reqwest::Client::new();
-
-
-
     let token= get_env_var("DISCORD_TOKEN");
 
     //let app_id= get_env_var("APPLICATION_ID");
@@ -164,7 +156,7 @@ async fn main()
                         Box::pin(async move
                             {
                                 poise::builtins::register_in_guild(ctx, &framework.options().commands,GuildId::new(guild_id.parse().unwrap())).await?;
-                                Ok(Data { client: client })
+                                Ok(Data)
                             })
                     })
                 .build();
@@ -174,9 +166,6 @@ async fn main()
                 .framework(framework)
                 .await;
             client.unwrap().start().await.unwrap();
-
-
-
 
 }
 

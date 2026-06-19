@@ -14,6 +14,7 @@ serde = { version = "1.0.228", features = ["derive"] }
 serde_json = { version = "1.0.149",default-features = true}
 rand = "0.10.1"
 md5 = "0.8.0"
+strsim = "0.11.1"
 
 [dependencies.serenity]
 default-features = false

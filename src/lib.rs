@@ -1,11 +1,10 @@
 use std::env;
-use reqwest;
 use std::string::String;
-use dotenv::dotenv;
 
 pub mod api;
+mod similarity;
 
-pub  fn get_env_var(var_name:&str)->String
+pub  fn get_env_var(var_name:&str) ->String
 {
     env::var(var_name).expect("Variable has not been set")
 }
