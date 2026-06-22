@@ -2,7 +2,7 @@ use std::env;
 use std::string::String;
 
 pub mod api;
-mod similarity;
+mod Similarity;
 
 pub  fn get_env_var(var_name:&str) ->String
 {
