@@ -1,18 +1,20 @@
-use std::env;
+use dotenv;
 use std::string::String;
 
+
 pub mod api;
-mod Similarity;
+pub mod similarity;
+mod menu_helpter;
 
 pub  fn get_env_var(var_name:&str) ->String
 {
-    env::var(var_name).expect("Variable has not been set")
+    dotenv::var(var_name).expect(&format!("Variable {:?} has not been set",var_name))
 }
 pub  fn prepare_env()
 
 {
 
-    dotenv::from_filename(".env").ok();
+    dotenv::from_filename("./.env").ok();
     println!("Preparing environment variables...");
 
 }

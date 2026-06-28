@@ -1,4 +1,4 @@
-#![allow(warnings)]
+
 
 use std::io::BufRead;
 use md5;
@@ -107,7 +107,7 @@ async fn get_lyrics(client:&reqwest::Client,song:Song)->Result<Vec<String>,reqwe
     }
 
     //println!("Lyrics:{:?}",&lyrics);
-    // todo: need to make sure the empty strings are eliminated
+    
 
     Ok(lyrics)
 }

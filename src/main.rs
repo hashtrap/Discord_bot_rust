@@ -8,6 +8,7 @@ use serenity::async_trait;
 use serenity::collector;
 use serenity::builder::Builder;
 use discord_bot::api::open_subsonic_api;
+use discord_bot::similarity;
 
 struct Handler;
 struct Data;
@@ -94,20 +95,37 @@ async fn duet_random(ctx:Context<'_>)->Result<(),Error>
         }
     };
 
-    for line in lyrics.iter() {
-        ctx.say(line).await?;
+    for i in (0..lyrics.len()).step_by(2) {
+        ctx.say(&lyrics[i]).await?;
 
         let user_response = collector::MessageCollector::new(ctx.serenity_context())
             .author_id(ctx.author().id)
             .channel_id(ctx.channel_id())
-            .timeout(Duration::from_secs(20))
+            .timeout(Duration::from_secs(60))
             .await;
+
+        //println!("{:?}", &user_response);
+
+
 
 
 
         match user_response {
             Some(message) => {
-                println!("The user answered: {}", message.content);
+
+                let sim_score=similarity::run_similarity(&message.content,&lyrics[i+1]);
+
+                println!("Similarity score {}",sim_score);
+
+                if 50.0<sim_score && sim_score<=70.0
+                {
+                    ctx.say("Hmmmm not quite similar but ok").await?;
+                }
+
+                else if sim_score<=50.0
+                {
+                    ctx.say("Uffff not close mate :(").await?;
+                }
             }
             None => {
                 println!("Waited too long");
@@ -123,8 +141,11 @@ async fn duet_random(ctx:Context<'_>)->Result<(),Error>
 }
 
 #[poise::command(slash_command)]
-async fn duet_song(_ctx:Context<'_>)->Result<(),Error>
+async fn duet_song(ctx:Context<'_>)->Result<(),Error>
 {
+    
+
+    //ctx.say(format!("the value you gave is: {:?}",song)).await?;
 
 
     Ok(())
@@ -143,7 +164,9 @@ async fn main()
 
 
 
-            let intents=serenity::GatewayIntents::non_privileged();
+            let intents=serenity::GatewayIntents::non_privileged()
+                | GatewayIntents::MESSAGE_CONTENT
+                | GatewayIntents::GUILD_MESSAGES;
 
             let framework= poise::Framework::builder()
                 .options(poise::FrameworkOptions
